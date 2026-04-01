@@ -1,0 +1,1428 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>EJT Bruges — Inscriptions 2026-2027</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --navy:   #0b1f47;
+      --navy2:  #132a5e;
+      --red:    #cc2418;
+      --red-bg: #fdf2f2;
+      --bg:     #edf0f5;
+      --border: #dde3ee;
+      --muted:  #64748b;
+      --text:   #0f172a;
+      --ok:     #16a34a;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100dvh; }
+
+    /* ── OFFLINE BAR ── */
+    #offline-bar { position:fixed;top:0;left:0;right:0;z-index:200;background:var(--red);color:#fff;text-align:center;padding:.5rem 1rem;font-size:.8rem;font-weight:600;transform:translateY(-100%);transition:transform .3s; }
+    #offline-bar.show { transform:translateY(0); }
+
+    /* ── HEADER ── */
+    .app-header { position:sticky;top:0;z-index:100;background:var(--navy);box-shadow:0 2px 12px rgba(0,0,0,.35); }
+    .header-inner { display:flex;align-items:center;gap:.75rem;padding:.85rem 1.25rem; }
+    .club-name { font-family:'DM Sans',sans-serif;font-size:2rem;font-weight:600;letter-spacing:.06em;color:#fff;text-transform:uppercase;line-height:1.1; }
+    .form-sub { font-size:.72rem;color:rgba(255,255,255,.6); }
+    .progress-meta { display:flex;justify-content:space-between;font-size:.7rem;color:rgba(255,255,255,.65);margin-bottom:.4rem; }
+    .progress-track { height:5px;background:rgba(255,255,255,.18);border-radius:3px; }
+    .progress-fill { height:100%;background:var(--red);border-radius:3px;transition:width .45s cubic-bezier(.4,0,.2,1); }
+
+    /* ─── ÉCRAN DE CHOIX ─────────────────────────────────── */
+    #choice-screen { display:block; }
+    .choice-wrap { max-width:min(700px,95%);margin:0 auto;padding:2rem 1rem 5rem; }
+    .choice-title {
+      font-family:'Barlow Condensed',sans-serif;
+      font-size:1.6rem;font-weight:800;
+      color:var(--navy);
+      text-align:center;
+      margin-bottom:.4rem;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+    }
+    .choice-sub { text-align:center;font-size:.83rem;color:var(--muted);margin-bottom:2rem;line-height:1.6; }
+
+    .big-buttons { display:grid;grid-template-columns:1fr 1fr;gap:1.1rem; }
+    @media(max-width:480px){ .big-buttons{grid-template-columns:1fr;} }
+
+    .big-btn {
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      gap:.65rem;padding:2rem 1.2rem;
+      border-radius:18px;border:none;cursor:pointer;
+      font-family:'DM Sans',sans-serif;
+      text-align:center;
+      transition:all .2s cubic-bezier(.4,0,.2,1);
+      box-shadow:0 4px 16px rgba(0,0,0,.1);
+    }
+    .big-btn:hover { transform:translateY(-3px);box-shadow:0 8px 28px rgba(0,0,0,.15); }
+    .big-btn:active { transform:translateY(-1px); }
+
+    .big-btn-adhesion { background:var(--navy);color:#fff; }
+    .big-btn-essai    { background:#fff;color:var(--navy);border:2px solid var(--navy); }
+
+    .big-btn-icon { font-size:2.4rem;line-height:1; }
+    .big-btn-label { font-family:'Barlow Condensed',sans-serif;font-size:1.5rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase; }
+    .big-btn-desc  { font-size:.76rem;opacity:.75;line-height:1.4;max-width:200px; }
+    .big-btn-adhesion .big-btn-desc { opacity:.65; }
+
+    /* ── FORMS WRAPPER ── */
+    #form-adhesion { display:none; }
+    #form-cours    { display:none; }
+
+    .page-wrap { max-width:min(900px,95%);margin:0 auto;padding:1.1rem .9rem 5rem; }
+    .card { background:#fff;border-radius:16px;box-shadow:0 1px 3px rgba(0,0,0,.07),0 6px 24px rgba(0,0,0,.07);overflow:hidden; }
+
+    .step-hd { background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 100%);border-left:5px solid var(--red);padding:1.1rem 1.4rem;color:#fff; }
+    .hd-title { font-family:'DM Sans',sans-serif;font-size:1.1rem;font-weight:400;letter-spacing:.02em; }
+    .hd-sub   { font-size:.72rem;color:rgba(255,255,255,.6);margin-top:1px; }
+
+    .panel { display:none !important; }
+    .panel.active { display:block !important;animation:slideIn .3s cubic-bezier(.4,0,.2,1); }
+    @keyframes slideIn { from{opacity:0;transform:translateX(14px)} to{opacity:1;transform:translateX(0)} }
+
+    .alert { margin:.9rem 1.3rem 0;padding:.7rem .95rem;border-radius:8px;font-size:.8rem;line-height:1.55; }
+    .a-info    { background:#eff6ff;border-left:3px solid #3b82f6;color:#1e40af; }
+    .a-warning { background:#fffbeb;border-left:3px solid #f59e0b;color:#7c4a00; }
+    .a-danger  { background:var(--red-bg);border-left:3px solid var(--red);color:#9b1c1c; }
+
+    .fields { padding:1.1rem 1.3rem; }
+    .field { margin-bottom:1.05rem; }
+    .field:last-child { margin-bottom:0; }
+    .flabel { display:block;font-size:.71rem;font-weight:600;letter-spacing:.055em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem; }
+    .req { color:var(--red); }
+    .fdesc { font-size:.76rem;color:var(--muted);margin-bottom:.35rem;line-height:1.45; }
+
+    .finput { width:100%;padding:.68rem .9rem;border:1.5px solid var(--border);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.93rem;color:var(--text);background:#f8fafc;outline:none;transition:border-color .18s,box-shadow .18s,background .18s;-webkit-appearance:none; }
+    .finput::placeholder { color:#b0bac9; }
+    .finput:focus { border-color:var(--navy);background:#fff;box-shadow:0 0 0 3px rgba(11,31,71,.1); }
+    .finput.err { border-color:var(--red);box-shadow:0 0 0 3px rgba(204,36,24,.1); }
+    .finput.ok  { border-color:var(--ok); }
+    textarea.finput { resize:vertical;min-height:80px; }
+    select.finput { cursor:pointer; }
+
+    .ferr { display:none;font-size:.73rem;font-weight:500;color:var(--red);margin-top:.28rem; }
+    .ferr.show { display:block; }
+
+    .grid2 { display:grid;grid-template-columns:1fr 1.7fr;gap:.75rem; }
+    @media(max-width:380px){ .grid2{grid-template-columns:1fr;} }
+    .grid2e { display:grid;grid-template-columns:1fr 1fr;gap:.75rem; }
+    @media(max-width:400px){ .grid2e{grid-template-columns:1fr;} }
+
+    .choices { display:flex;flex-direction:column;gap:.4rem; }
+    .choice { display:flex;align-items:flex-start;gap:.7rem;padding:.65rem .9rem;border:1.5px solid var(--border);border-radius:9px;cursor:pointer;background:#f8fafc;transition:border-color .15s,background .15s;user-select:none; }
+    .choice:hover { border-color:var(--navy);background:#f0f4fb; }
+    .choice.selected { border-color:var(--navy);background:#eef2fb; }
+    .choice.suggested { border-color:var(--ok)!important;background:#f0fdf4!important; }
+    .choice.suggested.selected { border-color:var(--navy)!important;background:#eef2fb!important; }
+    .choice input { display:none; }
+
+    .cdot { flex-shrink:0;margin-top:2px;width:18px;height:18px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;transition:all .15s; }
+    .choice.selected .cdot { background:var(--navy);border-color:var(--navy); }
+    .choice.selected .cdot::after { content:'';width:6px;height:6px;background:#fff;border-radius:50%; }
+
+    .csq { flex-shrink:0;margin-top:2px;width:18px;height:18px;border-radius:4px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;transition:all .15s; }
+    .choice.selected .csq { background:var(--navy);border-color:var(--navy); }
+    .choice.selected .csq::after { content:'✓';color:#fff;font-size:11px;font-weight:700; }
+
+    .ctext { font-size:.86rem;line-height:1.4;color:var(--text); }
+
+    /* ─── CRÉNEAU VERROUILLÉ (essai) ── */
+    .choice.locked { pointer-events:none;cursor:default; }
+    .choice.locked:not(.selected) { opacity:.38; }
+    .choice.selected.locked { border-color:var(--navy);background:#eef2fb; }
+    .creneau-err-box { background:#fffbeb;border:1.5px solid #f59e0b;border-radius:10px;padding:.8rem 1rem;font-size:.82rem;color:#7c4a00;line-height:1.5; }
+
+    .divider { border:none;border-top:1px solid var(--border);margin:1.1rem 0; }
+    .sec-label { font-family:'Barlow Condensed',sans-serif;font-size:.95rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--navy);margin-bottom:.55rem; }
+    .sec-sub   { font-size:.76rem;color:var(--muted);margin-bottom:.7rem;line-height:1.5; }
+
+    /* ─── CALENDRIER ── */
+    .cal-wrap { border:1.5px solid var(--border);border-radius:12px;overflow:hidden; }
+    .cal-header { display:flex;align-items:center;justify-content:space-between;padding:.65rem .9rem;background:var(--navy); }
+    .cal-month-label { font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1.1rem;letter-spacing:.06em;text-transform:uppercase;color:#fff; }
+    .cal-nav-btn { background:rgba(255,255,255,.15);border:none;border-radius:6px;color:#fff;width:30px;height:30px;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;transition:background .15s; }
+    .cal-nav-btn:hover:not(:disabled) { background:rgba(255,255,255,.3); }
+    .cal-nav-btn:disabled { opacity:.3;cursor:not-allowed; }
+    .cal-dow-row { display:grid;grid-template-columns:repeat(7,1fr);background:#f8fafc;border-bottom:1px solid var(--border); }
+    .cal-dow { text-align:center;padding:.35rem 0;font-size:.63rem;font-weight:700;color:var(--muted);text-transform:uppercase; }
+    .cal-dow.hl { color:var(--navy); }
+    .cal-days { display:grid;grid-template-columns:repeat(7,1fr);gap:3px;padding:.45rem; }
+    .cal-day { aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:.83rem;color:#cbd5e1;position:relative; }
+    .cal-day.active { background:#eef2fb;color:var(--navy);cursor:pointer;font-weight:600;border:1.5px solid transparent;transition:all .12s; }
+    .cal-day.active:hover { background:#dce7f6;border-color:var(--navy2); }
+    .cal-day.today { border:1.5px solid var(--red)!important;color:var(--red)!important;font-weight:700; }
+    .cal-day.selected { background:var(--navy)!important;color:#fff!important;border-color:var(--navy)!important;font-weight:700; }
+    .cal-day.past { opacity:.28;cursor:not-allowed; }
+    .cal-placeholder { padding:1.6rem 1rem;text-align:center;color:var(--muted);font-size:.83rem;background:#f8fafc;border:1.5px dashed var(--border);border-radius:12px; }
+    .date-chosen { margin-top:.5rem;font-size:.8rem;font-weight:600;color:var(--ok);min-height:1.2rem; }
+
+    /* ─── RÈGLEMENT ── */
+    .reglement-box { background:#f8fafc;border:1.5px solid var(--border);border-radius:10px;padding:1rem 1.1rem;font-size:.8rem;line-height:1.75;color:var(--text);margin-bottom:1rem; }
+    .reglement-box ol { padding-left:1.2rem; }
+    .reglement-box li { margin-bottom:.2rem; }
+
+    /* ─── NAV BAR ── */
+    .nav-bar { display:flex;gap:.7rem;padding:.9rem 1.3rem;border-top:1px solid var(--border); }
+    .btn { display:flex;align-items:center;justify-content:center;gap:.45rem;padding:.78rem 1rem;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;border:none;cursor:pointer;transition:all .18s; }
+    .btn-p { flex:1;background:var(--navy);color:#fff; }
+    .btn-p:hover:not(:disabled) { background:var(--navy2);transform:translateY(-1px);box-shadow:0 4px 14px rgba(11,31,71,.25); }
+    .btn-p:active:not(:disabled) { transform:translateY(0); }
+    .btn-p:disabled { opacity:.6;cursor:not-allowed;transform:none; }
+    .btn-s { flex:.55;background:#fff;color:var(--muted);border:1.5px solid var(--border); }
+    .btn-s:hover { border-color:var(--navy);color:var(--navy); }
+    .spinner { width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none; }
+    .btn-p.loading .spinner { display:block; }
+    .btn-p.loading .blabel { opacity:.7; }
+    @keyframes spin { to{transform:rotate(360deg)} }
+
+    .err-global { display:none;margin:0 1.3rem .8rem;padding:.65rem .9rem;background:var(--red-bg);border:1px solid rgba(204,36,24,.25);border-radius:8px;font-size:.8rem;font-weight:500;color:#9b1c1c; }
+    .err-global.show { display:block; }
+
+    .success-screen { display:none;text-align:center;padding:2.5rem 1.5rem 2rem; }
+    .success-screen.show { display:block;animation:slideIn .4s ease; }
+    .success-icon { width:76px;height:76px;border-radius:50%;background:var(--navy);margin:0 auto 1.3rem;display:flex;align-items:center;justify-content:center;font-size:2rem;box-shadow:0 8px 24px rgba(11,31,71,.3); }
+    .success-title { font-family:'Barlow Condensed',sans-serif;font-size:1.8rem;font-weight:800;color:var(--navy);margin-bottom:.4rem; }
+    .success-msg { font-size:.87rem;color:var(--muted);line-height:1.65;max-width:360px;margin:0 auto 1.2rem; }
+  </style>
+</head>
+<body>
+
+<div id="offline-bar">⚡ Connexion internet perdue — vérifiez votre réseau</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     HEADER COMMUN
+══════════════════════════════════════════════════════════ -->
+<header class="app-header">
+  <div class="header-inner">
+    <img src="logo_EJT_cercle_2024.png" style="height:50px;width:auto;" alt="Logo EJT" />
+    <div style="flex:1;min-width:0;">
+      <div class="club-name">EJT Bruges</div>
+      <div class="form-sub" id="header-sub">Inscriptions — Saison 2026-2027</div>
+    </div>
+    <div style="flex:2;min-width:0;padding-left:1.5rem;" id="progress-area" style="display:none">
+      <div class="progress-meta">
+        <span id="prog-label"></span>
+        <span id="prog-pct"></span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="prog-fill" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     ÉCRAN DE CHOIX
+══════════════════════════════════════════════════════════ -->
+<div id="choice-screen">
+  <div class="choice-wrap">
+    <div class="choice-title">Bienvenue</div>
+    <p class="choice-sub">Saison 2026-2027 — Choisissez votre démarche pour commencer</p>
+    <div class="big-buttons">
+
+      <button class="big-btn big-btn-adhesion" onclick="showForm('adhesion')">
+        <div class="big-btn-icon">🥋</div>
+        <div class="big-btn-label">Adhésion</div>
+        <div class="big-btn-desc">Rejoindre le club pour la saison complète</div>
+      </button>
+
+      <div id="btn-essai-wrap"><button class="big-btn big-btn-essai" onclick="showForm('essai')">
+        <div class="big-btn-icon">🎌</div>
+        <div class="big-btn-label">1 Cours d'essai</div>
+        <div class="big-btn-desc">Essayer avant d'adhérer pour la sasison — inscription en ligne obligatoire</div>
+      </button></div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     FORMULAIRE ADHÉSION
+══════════════════════════════════════════════════════════ -->
+<div id="form-adhesion">
+<div class="page-wrap"><div class="card">
+
+  <div class="step-hd" id="adh-step-hd">
+    <div class="hd-title" id="adh-hd-title">⚠️ Important — À lire avant de commencer ⚠️</div>
+    <div class="hd-sub"   id="adh-hd-sub">Section 1 — Informations importantes</div>
+  </div>
+
+  <!-- PANEL 1 -->
+  <div class="panel" id="adh-p1">
+    <div class="alert a-info">
+      Ceci est le formulaire d'adhésion au club. Merci de lire attentivement toutes les questions.<br>
+      <strong>Il est OBLIGATOIRE de le renseigner pour pouvoir pratiquer.</strong>
+    </div>
+    <div class="fields" style="padding-top:.75rem">
+      <ul style="font-size:.83rem;line-height:1.75;padding-left:1.2rem">
+        <li><strong>• Aucun mineur ne pourra adhérer sans autorisation parentale.</strong></li>
+        <li style="margin-top:.2rem">L'adhésion à l'Entente Sportive de Bruges (ESB) ne sera effective qu'après présentation du dossier d'adhésion complet, c'est à dire :</li>
+        <li style="margin-left:1rem">• Avoir fourni une attestation de santé ou un certificat médical de non contre-indication à la pratique du judo (avec, le cas échéant, la mention "en compétition").</li>
+        <li style="margin-left:1rem">• Avoir validé le règlement intérieur.</li>
+        <li style="margin-left:1rem">• Avoir réglé la licence et la cotisation pour la saison en cours.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- PANEL 2 : IDENTITÉ + CONTACT 1 -->
+  <div class="panel" id="adh-p2">
+    <div class="fields">
+      <div class="sec-label">Identité du licencié</div>
+      <div class="grid2">
+        <div class="field">
+          <label class="flabel" for="adh-f-nom">NOM<span class="req">*</span></label>
+          <p class="fdesc">du judoka</p>
+          <input class="finput" type="text" id="adh-f-nom" placeholder="DUPONT" autocomplete="family-name"/>
+          <div class="ferr" id="adh-f-nom-e">Ce champ est obligatoire</div>
+        </div>
+        <div class="field">
+          <label class="flabel" for="adh-f-prenom">Prénom <span class="req">*</span></label>
+          <p class="fdesc">du judoka</p>
+          <input class="finput" type="text" id="adh-f-prenom" placeholder="Marie" autocomplete="given-name"/>
+          <div class="ferr" id="adh-f-prenom-e">Ce champ est obligatoire</div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="flabel" for="adh-f-ddn">Date de naissance <span class="req">*</span></label>
+        <p class="fdesc">Format : JJ/MM/AAAA</p>
+        <input class="finput" type="text" id="adh-f-ddn" placeholder="15/06/1990" inputmode="numeric" maxlength="10"/>
+        <div class="ferr" id="adh-f-ddn-e">Veuillez entrer une date valide au format JJ/MM/AAAA</div>
+      </div>
+      <div class="field">
+        <label class="flabel" for="adh-f-adresse">Adresse postale <span class="req">*</span></label>
+        <input class="finput" type="text" id="adh-f-adresse" placeholder="12 rue de la Paix" autocomplete="street-address"/>
+        <div class="ferr" id="adh-f-adresse-e">Ce champ est obligatoire</div>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label class="flabel" for="adh-f-cp">Code postal <span class="req">*</span></label>
+          <input class="finput" type="text" id="adh-f-cp" placeholder="33520" inputmode="numeric" maxlength="5"/>
+          <div class="ferr" id="adh-f-cp-e">Obligatoire</div>
+        </div>
+        <div class="field">
+          <label class="flabel" for="adh-f-ville">Ville <span class="req">*</span></label>
+          <input class="finput" type="text" id="adh-f-ville" placeholder="Bruges" autocomplete="address-level2"/>
+          <div class="ferr" id="adh-f-ville-e">Obligatoire</div>
+        </div>
+      </div>
+      <hr class="divider"/>
+      <div class="sec-label">Contact — Personnel ou Représentant légal — Obligatoire</div>
+      <div class="field">
+        <label class="flabel">Qualité <span class="req">*</span></label>
+        <p class="fdesc">Personnel ; Parents ; Époux/Épouse ; etc...</p>
+        <select class="finput" id="adh-f-qualite1">
+          <option value="">— Choisissez —</option><option>Personnel</option><option>Mère</option><option>Père</option><option>Époux/Épouse</option>
+          <option>Concubin/Concubine</option><option>Grand-parent</option>
+        </select>
+        <div class="ferr" id="adh-f-qualite1-e">Veuillez sélectionner une qualité</div>
+      </div>
+      <div class="field">
+        <label class="flabel" for="adh-f-tel1">Numéro de téléphone <span class="req">*</span></label>
+        <p class="fdesc">N'écrire qu'un seul numéro de téléphone !</p>
+        <input class="finput" type="tel" id="adh-f-tel1" placeholder="06 12 34 56 78" autocomplete="tel"/>
+        <div class="ferr" id="adh-f-tel1-e">Ce champ est obligatoire</div>
+      </div>
+      <hr class="divider"/>
+      <div class="field">
+        <label class="flabel" for="adh-f-email">Adresse e-mail <span class="req">*</span></label>
+        <p class="fdesc">Cette adresse recevra les informations du club et sera utilisée comme adresse mail du contact 1.</p>
+        <input class="finput" type="email" id="adh-f-email" placeholder="prenom.nom@exemple.fr" autocomplete="email" inputmode="email"/>
+        <div class="ferr" id="adh-f-email-e">Veuillez entrer une adresse e-mail valide</div>
+      </div>
+      <input type="hidden" id="adh-f-mail1d"/>
+      <div class="field">
+        <label class="flabel">Cours du licencié <span class="req">*</span></label>
+        <div class="choices" id="adh-cours-g"></div>
+        <div class="ferr" id="adh-cours-e">Veuillez sélectionner un cours</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL 3 : MÉDICAL -->
+  <div class="panel" id="adh-p3">
+    <div class="alert a-warning">
+      Le certificat médical n'est plus obligatoire. Vous pouvez répondre à un questionnaire de santé.<br>
+      • Réponse <strong>Oui</strong> à toutes les questions → transmettre l'attestation.<br>
+      • Réponse <strong>Non</strong> à une question → fournir un certificat médical <em>"apte à la pratique [discipline]"</em>.
+    </div>
+    <div class="fields">
+      <div class="field">
+        <label class="flabel">Certificat médical <span class="req">*</span></label>
+        <p class="fdesc">⚠️ Le choix "Non Pratiquant" est réservé aux membres du bureau qui ne font ni judo ni jujitsu</p>
+        <div class="choices" id="adh-cert-g"></div>
+        <div class="ferr" id="adh-cert-e">Veuillez faire un choix</div>
+      </div>
+      <div class="field">
+        <label class="flabel" for="adh-f-allergie">Allergie(s) ?</label>
+        <p class="fdesc">Cette réponse n'est pas obligatoire</p>
+        <input class="finput" type="text" id="adh-f-allergie" placeholder="Aucune / pénicilline, arachides..."/>
+      </div>
+      <div class="field">
+        <label class="flabel" for="adh-f-traitement">Traitement médical ? (Médicaments, Asthme…)</label>
+        <p class="fdesc">Cette réponse n'est pas obligatoire</p>
+        <input class="finput" type="text" id="adh-f-traitement" placeholder="Aucun / Ventoline..."/>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL 4 : CONTACTS 2 & 3 -->
+  <div class="panel" id="adh-p4">
+    <div class="fields">
+      <div class="sec-label">Contact — d'urgence ou Deuxième parent <span style="font-weight:400;font-size:.78rem;text-transform:none;color:var(--muted)">(Recommandé)</span></div>
+      <p class="sec-sub">‼️ <strong>Majeurs</strong> : notez ici la personne à contacter en cas d'urgence.</p>
+      <div class="field">
+        <label class="flabel">Qualité</label>
+        <p class="fdesc">Parents ; Époux/Épouse ; etc...</p>
+        <select class="finput" id="adh-f-qualite2">
+          <option value="">— Recommandé —</option>
+          <option>Mère</option><option>Père</option><option>Époux/Épouse</option>
+          <option>Concubin/Concubine</option><option>Grand-parent</option><option>Enfant</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="flabel" for="adh-f-tel2">Numéro de téléphone</label>
+        <p class="fdesc">N'écrire qu'un seul numéro de téléphone !</p>
+        <input class="finput" type="tel" id="adh-f-tel2" placeholder="06 12 34 56 78"/>
+      </div>
+      <div class="field">
+        <label class="flabel" for="adh-f-mail2">Adresse mail</label>
+        <p class="fdesc">⚠️ Toute adresse mail renseignée ici recevra les informations du club</p>
+        <input class="finput" type="email" id="adh-f-mail2" placeholder="contact@exemple.fr" inputmode="email"/>
+        <div class="ferr" id="adh-f-mail2-e">Veuillez entrer une adresse e-mail valide</div>
+      </div>
+      <hr class="divider"/>
+      <div class="sec-label">Contact <span style="font-weight:400;font-size:.78rem;text-transform:none;color:var(--muted)">(facultatif)</span></div>
+      <div class="field">
+        <label class="flabel">Qualité 3</label>
+        <select class="finput" id="adh-f-qualite3">
+          <option value="">— Optionnel —</option>
+          <option>Mère</option><option>Père</option><option>Époux/Épouse</option>
+          <option>Concubin/Concubine</option><option>Grand-parent</option><option>Enfant</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="flabel" for="adh-f-tel3">Numéro de téléphone 3</label>
+        <p class="fdesc">N'écrire qu'un seul numéro de téléphone !</p>
+        <input class="finput" type="tel" id="adh-f-tel3" placeholder="Optionnel"/>
+      </div>
+      <div class="field">
+        <label class="flabel" for="adh-f-mail3">Adresse mail 3</label>
+        <p class="fdesc">⚠️ Toute adresse mail renseignée ici recevra les informations du club</p>
+        <input class="finput" type="email" id="adh-f-mail3" placeholder="Optionnel" inputmode="email"/>
+        <div class="ferr" id="adh-f-mail3-e">Format d'e-mail invalide</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL 5 : AUTORISATIONS -->
+  <div class="panel" id="adh-p5">
+    <div class="fields">
+      <div class="field">
+        <label class="flabel">J'autorise l'encadrement à transporter l'adhérent sur les lieux des manifestations (compétitions, sorties, etc...)<span class="req">*</span></label>
+        <div class="choices" id="adh-atr-g"></div>
+        <div class="ferr" id="adh-atr-e">Veuillez répondre à cette question</div>
+      </div>
+      <div class="field">
+        <label class="flabel">J'autorise l'ESB et l'EJT à utiliser les photos de l'adhérent pour la communication ou le bulletin d'information de la section ou de l'ESB (dont magazine Info Sports)<span class="req">*</span></label>
+        <div class="choices" id="adh-aph-g"></div>
+        <div class="ferr" id="adh-aph-e">Veuillez répondre à cette question</div>
+      </div>
+      <div class="field">
+        <label class="flabel">J'autorise l'encadrement, en cas de maladie ou d'accident, à prendre toutes les mesures d'urgence, y compris l'hospitalisation.<span class="req">*</span></label>
+        <div class="choices" id="adh-aur-g"></div>
+        <div class="ferr" id="adh-aur-e">Veuillez répondre à cette question</div>
+      </div>
+      <div class="field" id="adh-field-quitter">
+        <label class="flabel">J'autorise mon enfant à quitter seul le lieu de son activité <span class="req">*</span></label>
+        <p class="fdesc">Sans cette autorisation, aucun enfant mineur ne pourra quitter seul le lieu de son activité. Passé un délai raisonnable, l'enfant sera confié à la police municipale.</p>
+        <div class="choices" id="adh-aqu-g"></div>
+        <div class="ferr" id="adh-aqu-e">Veuillez répondre à cette question</div>
+      </div>
+      <div class="field" id="adh-field-confier">
+        <label class="flabel" for="adh-f-confier">J'autorise les responsables de la section à confier mon enfant aux personnes désignées ci-après</label>
+        <p class="fdesc">Prénom NOM des personnes autorisées.</p>
+        <input class="finput" type="text" id="adh-f-confier" placeholder="Prénom NOM..."/>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL 6 : PAIEMENT -->
+  <div class="panel" id="adh-p6">
+    <div class="alert a-info" style="font-size:.78rem">
+      <strong>Modes acceptés :</strong><br>• Espèces<br>• Chèque<br>• 3 fois en chèque<br>• CB via HelloAsso.<br><br>
+      <strong>Encaissement des chèques cotisation :</strong><br>
+      • Annuel : <strong>vers le 05/11/2026</strong><br>
+      • 3 chèques : <strong>vers les 05/11/2026</strong> · <strong>15/01/2027</strong> · <strong>05/04/2027</strong><br><br>
+      <strong>Les cotisations sont dues à l'année et à transmettre en début de saison lors de l'inscription.</strong> (cf règlement intérieur).<br>
+      Pour tout problème lié à l'encaissement merci de nous contacter le plus rapidement possible.<br><br>
+      <strong>‼️ Tout règlement qui ne sera pas à jour entraînera le refus de pratique du judoka.</strong>
+    </div>
+    <div class="fields">
+      <label class="flabel">Validation des modalités de règlement <span class="req">*</span></label>
+      <div class="choices">
+        <label class="choice" id="adh-cb-modalites">
+          <input type="checkbox" id="adh-f-modalites"/>
+          <div class="csq"></div>
+          <div class="ctext">J'ai lu et j'accepte les conditions de règlement</div>
+        </label>
+      </div>
+      <div class="ferr" id="adh-f-modalites-e">Vous devez valider les modalités de règlement</div>
+    </div>
+  </div>
+
+  <!-- PANEL 7 : FACTURE -->
+  <div class="panel" id="adh-p7">
+    <div class="alert a-info" style="font-size:.79rem">
+      La facture ne pourra être établie qu'après réception de votre règlement en totalité (licence et cotisation).
+      <br>‼️ La facture sera adressée par mail à l'adresse fournie en début de formulaire.
+    </div>
+    <div class="fields">
+      <div class="field">
+        <label class="flabel">Demander une facture <span class="req">*</span></label>
+        <div class="choices" id="adh-attest-g"></div>
+        <div class="ferr" id="adh-attest-e">Veuillez faire un choix</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL 8 : RÈGLEMENT INTÉRIEUR -->
+  <div class="panel" id="adh-p8">
+    <div class="alert a-info">
+      Le règlement sera envoyé après l'inscription au format PDF à votre adresse mail. Il est consultable en permanence sur <a href="https://drive.google.com/file/d/1hhBw0s1Jh9KyzzE-hmmJASCELPjbhT3b/view" target="_blank" style="color:var(--navy);font-weight:600">ce lien</a>.
+    </div>
+    <div class="fields">
+      <div class="field">
+        <label class="flabel">Validation du règlement intérieur <span class="req">*</span></label>
+        <div class="choices">
+          <label class="choice" id="adh-cb-reglement">
+            <input type="checkbox" id="adh-f-reglement"/>
+            <div class="csq"></div>
+            <div class="ctext">Je certifie avoir lu et j'accepte les conditions du règlement intérieur</div>
+          </label>
+        </div>
+        <div class="ferr" id="adh-f-reglement-e">Vous devez accepter le règlement intérieur pour continuer</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL 9 : VALIDATION FINALE -->
+  <div class="panel" id="adh-p9">
+    <div class="alert a-info">
+      Vérifiez vos informations puis envoyez votre dossier.<br>
+      Après envoi, vous pouvez consulter le règlement sur <a href="https://sites.google.com/view/ejt-bruges" target="_blank" style="color:var(--navy);font-weight:600">notre site</a> et faire votre demande de licence sur
+      <a href="https://moncompte.ffjudo.com/prise-licence" target="_blank" style="color:var(--navy);font-weight:600">le site de la fédération</a>.
+    </div>
+    <div class="fields">
+      <div class="field">
+        <label class="flabel">Validation des informations <span class="req">*</span></label>
+        <div class="choices">
+          <label class="choice" id="adh-cb-validation">
+            <input type="checkbox" id="adh-f-validation"/>
+            <div class="csq"></div>
+            <div class="ctext">Je certifie que toutes les informations renseignées dans ce formulaire sont exactes</div>
+          </label>
+        </div>
+        <div class="ferr" id="adh-f-validation-e">Vous devez certifier l'exactitude des informations</div>
+      </div>
+    </div>
+    <div class="err-global" id="adh-err-global"></div>
+  </div>
+
+  <!-- SUCCESS ADHÉSION -->
+  <div class="success-screen" id="adh-success-screen">
+    <div class="success-icon">🥋</div>
+    <div class="success-title">Dossier envoyé !</div>
+    <p class="success-msg">
+      Merci pour votre inscription à l'EJT Bruges pour la saison 2026-2027.<br>
+      Vos réponses ont bien été enregistrées.<br><br>
+      En suivant ce lien, dans la partie <em>Information › Documents à télécharger</em>, vous aurez accès au règlement intérieur en PDF et pourrez faire votre demande de licence :
+    </p>
+    <a href="https://sites.google.com/view/ejt-bruges" target="_blank" style="color:var(--navy);font-weight:600;font-size:.9rem">
+      sites.google.com/view/ejt-bruges
+    </a>
+  </div>
+
+  <!-- NAV ADHÉSION -->
+  <div class="nav-bar" id="adh-nav-bar">
+    <button class="btn btn-s" id="adh-btn-prev" style="display:none" onclick="adhGo(-1)">← Retour</button>
+    <button class="btn btn-p" id="adh-btn-next" onclick="adhGo(1)">
+      <span class="blabel" id="adh-btn-label">Continuer →</span>
+      <div class="spinner"></div>
+    </button>
+  </div>
+
+</div></div>
+</div><!-- #form-adhesion -->
+
+
+<!-- ══════════════════════════════════════════════════════════
+     FORMULAIRE COURS D'ESSAI
+══════════════════════════════════════════════════════════ -->
+<div id="form-cours">
+<div class="page-wrap"><div class="card">
+
+  <div class="step-hd" id="ess-step-hd">
+    <div class="hd-title" id="ess-hd-title">👤 Identité &amp; Contact</div>
+    <div class="hd-sub"   id="ess-hd-sub">Section 1 — Informations personnelles</div>
+  </div>
+
+  <!-- PANEL 1 : IDENTITÉ & CONTACT -->
+  <div class="panel" id="ess-p1">
+    <div class="alert a-info">
+      Veuillez remplir ce formulaire pour inscrire la personne à un cours d'essai.<br>
+      <strong>L'inscription est obligatoire pour pouvoir essayer.</strong>
+    </div>
+    <div class="fields">
+      <div class="sec-label">Identité de la personne qui essaye</div>
+      <div class="grid2e">
+        <div class="field">
+          <label class="flabel" for="ess-f-nom">NOM <span class="req">*</span></label>
+          <input class="finput" type="text" id="ess-f-nom" placeholder="DUPONT" autocomplete="family-name"/>
+          <div class="ferr" id="ess-f-nom-e">Ce champ est obligatoire</div>
+        </div>
+        <div class="field">
+          <label class="flabel" for="ess-f-prenom">Prénom <span class="req">*</span></label>
+          <input class="finput" type="text" id="ess-f-prenom" placeholder="Marie" autocomplete="given-name"/>
+          <div class="ferr" id="ess-f-prenom-e">Ce champ est obligatoire</div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="flabel" for="ess-f-ddn">Date de naissance <span class="req">*</span></label>
+        <p class="fdesc">JJ/MM/AAAA</p>
+        <input class="finput" type="text" id="ess-f-ddn" placeholder="15/06/2018" inputmode="numeric" maxlength="10"/>
+        <div class="ferr" id="ess-f-ddn-e">Veuillez entrer une date valide au format JJ/MM/AAAA</div>
+      </div>
+      <hr class="divider"/>
+      <div class="sec-label" style="margin-bottom:.2rem">Contact</div>
+      <p class="sec-sub" style="margin-bottom:0">Personne remplissant ce formulaire. Si majeur, sélectionnez «Moi-même ».</p>
+      <div class="field">
+        <label class="flabel" for="ess-f-qualite">Qualité <span class="req">*</span></label>
+        <select class="finput" id="ess-f-qualite">
+          <option value="">— Choisissez —</option>
+          <option>Mère</option><option>Père</option>
+          <option>Tuteur légal</option><option>Autre représentant légal</option><option>Moi-même</option>
+        </select>
+        <div class="ferr" id="ess-f-qualite-e">Veuillez sélectionner une qualité</div>
+      </div>
+      <div class="field">
+        <label class="flabel" for="ess-f-email">Adresse e-mail <span class="req">*</span></label>
+        <input class="finput" type="email" id="ess-f-email" placeholder="prenom.nom@exemple.fr" autocomplete="email" inputmode="email"/>
+        <div class="ferr" id="ess-f-email-e">Veuillez entrer une adresse e-mail valide</div>
+      </div>
+      <div class="field">
+        <label class="flabel" for="ess-f-tel">Numéro de téléphone <span class="req">*</span></label>
+        <input class="finput" type="tel" id="ess-f-tel" placeholder="06 12 34 56 78" autocomplete="tel"/>
+        <div class="ferr" id="ess-f-tel-e">Ce champ est obligatoire</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL 2 : CRÉNEAU + CALENDRIER -->
+  <div class="panel" id="ess-p2">
+    <div class="fields">
+      <div class="field">
+        <div class="sec-label">Créneau cours d'essai</div>
+        <p class="fdesc">Le créneau est automatiquement attribué selon l'année de naissance — non modifiable.</p>
+        <div class="choices" id="ess-creneau-g"></div>
+        <div id="ess-creneau-err-box" class="creneau-err-box" style="display:none;">
+          ⚠️ Nous ne proposons pas de cours d'essai pour cet âge. Merci de contacter le club directement.
+        </div>
+        <input type="hidden" id="ess-f-creneau"/>
+      </div>
+      <div class="field" id="ess-jujitsu-field" style="display:none;">
+        <label class="choice" id="ess-cb-jujitsu">
+          <input type="checkbox" id="ess-f-jujitsu"/>
+          <div class="csq"></div>
+          <div class="ctext">Jujitsu - Mercredi : 19h30–21h00</div>
+        </label>
+      </div>
+      <hr class="divider"/>
+      <div class="sec-label">Date de l'essai <span class="req">*</span></div>
+      <p class="sec-sub" id="ess-cal-hint">📅 Seuls les jours correspondant au créneau attribué sont cliquables. Le calendrier démarre au 28 août 2026.</p>
+      <div id="ess-cal-placeholder" class="cal-placeholder" style="display:none;">📅 Le calendrier s'affichera ici</div>
+      <div class="cal-wrap" id="ess-cal-wrap" style="display:none;">
+        <div class="cal-header">
+          <button class="cal-nav-btn" id="ess-cal-prev" onclick="essCalNav(-1)">‹</button>
+          <span class="cal-month-label" id="ess-cal-month-label"></span>
+          <button class="cal-nav-btn" id="ess-cal-next" onclick="essCalNav(1)">›</button>
+        </div>
+        <div class="cal-dow-row" id="ess-cal-dow-row"></div>
+        <div class="cal-days" id="ess-cal-days"></div>
+      </div>
+      <input type="hidden" id="ess-f-date-essai"/>
+      <div class="date-chosen" id="ess-date-chosen-label"></div>
+      <div class="ferr" id="ess-f-date-essai-e">Veuillez sélectionner une date dans le calendrier</div>
+    </div>
+  </div>
+
+  <!-- PANEL 3 : MÉDICAL -->
+  <div class="panel" id="ess-p3">
+    <div class="alert a-warning">
+      Cette section est <strong>facultative</strong>. Si la personne n'a aucune particularité médicale, vous pouvez passer directement à l'étape suivante.
+    </div>
+    <div class="fields">
+      <div class="field">
+        <label class="flabel" for="ess-f-medical">Informations médicales à communiquer</label>
+        <p class="fdesc">Allergies, traitement en cours, asthme, toute information utile pour l'encadrement pendant le cours d'essai</p>
+        <textarea class="finput" id="ess-f-medical" placeholder="Ex : Asthme léger — Ventoline dans le sac. Allergie aux arachides. Aucune contre-indication connue..."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL 4 : RÈGLEMENT + VALIDATION -->
+  <div class="panel" id="ess-p4">
+    <div class="alert a-info">Merci de lire attentivement le règlement avant de valider votre inscription.</div>
+    <div class="fields">
+      <div class="sec-label">📋 Règlement Cours d'essais EJT — ES Bruges</div>
+      <div class="reglement-box">
+        <ol>
+          <li>Pour tout cours d'essai, l'inscription est obligatoire (via le formulaire en ligne).</li>
+          <li>Ne rien faire qui soit susceptible d'entacher l'honneur de l'École de Judo Traditionnelle.</li>
+          <li>Ne pas pratiquer le Judo hors du contrôle d'un Professeur diplômé d'État qui a obligatoirement la responsabilité des cours dispensés, conformément au statut de la FFJDA.</li>
+          <li>Certifie que l'essayant est apte médicalement.</li>
+          <li>Ne pénétrer dans le Dojo (lieu où l'on étudie la Voie) qu'en tenue correcte, dans le respect de soi-même et de ses camarades.</li>
+          <li>L'essayant doit avoir une tenue propre et adaptée de préférence (t-shirt manche longue et pantalon type jogging ou legging long).</li>
+          <li>Respecter le Tatami (tapis de judo) en ne pénétrant sur celui-ci que déchaussé, avec les mains et les pieds propres, ongles soigneusement coupés pour éviter de blesser ses partenaires.</li>
+          <li>Tout mineur ne peut adhérer qu'avec l'accord écrit de son représentant légal.</li>
+          <li>La responsabilité de la section n'est engagée que pendant les heures de cours et dans le Dojo.</li>
+          <li>La responsabilité de l'EJT ne peut être engagée dans les vestiaires.</li>
+          <li>Des sanctions peuvent être prononcées par le Bureau Directeur de l'EJT. Tout membre ayant contrevenu aux dispositions des règlements en vigueur, aux statuts de l'ESB ou à ceux de la FFJDA sera sanctionné.</li>
+          <li>Les statuts de l'EJT, de l'ESB de la FFJDA ainsi que leurs règlements intérieurs sont à la disposition des parents et des adhérents au bureau de l'EJT.</li>
+          <li><strong>À respecter le professeur et les judokas en maintenant le silence durant le cours.</strong></li>
+        </ol>
+      </div>
+      <div class="field">
+        <div class="choices">
+          <label class="choice" id="ess-cb-certifie">
+            <input type="checkbox" id="ess-f-certifie"/>
+            <div class="csq"></div>
+            <div class="ctext">Je certifie que les informations renseignées sont exactes</div>
+          </label>
+        </div>
+        <div class="ferr" id="ess-f-certifie-e">Vous devez certifier l'exactitude des informations</div>
+      </div>
+      <div class="field">
+        <div class="choices">
+          <label class="choice" id="ess-cb-reglement">
+            <input type="checkbox" id="ess-f-reglement"/>
+            <div class="csq"></div>
+            <div class="ctext">J'ai lu et j'accepte le règlement du cours d'essai et ses conditions</div>
+          </label>
+        </div>
+        <div class="ferr" id="ess-f-reglement-e">Vous devez accepter le règlement du cours d'essai</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUCCESS COURS D'ESSAI -->
+  <div class="success-screen" id="ess-success-screen">
+    <div class="success-icon">🥋</div>
+    <div class="success-title">Inscription enregistrée !</div>
+    <div class="success-msg">
+      Merci pour votre inscription au cours d'essai — Saison 2026-2027.<br><br>
+      Si vous avez un empêchement, merci de nous prévenir au plus vite.<br><br>
+      <strong>Tenue conseillée :</strong> t-shirt à manches longues et pantalon de type jogging ou legging long. Une petite bouteille d'eau est la bienvenue.<br><br>
+      ⚠️ Il n'y a pas de possibilité d'assister aux cours (pas d'espace spectateurs).<br><br>
+      <strong>Bon cours ! 🎌</strong>
+    </div>
+  </div>
+
+  <div class="err-global" id="ess-err-global"></div>
+
+  <!-- NAV COURS D'ESSAI -->
+  <div class="nav-bar" id="ess-nav-bar">
+    <button class="btn btn-s" id="ess-btn-prev" onclick="essGo(-1)" style="display:none">← Retour</button>
+    <button class="btn btn-p" id="ess-btn-next" onclick="essGo(1)">
+      <span class="spinner"></span>
+      <span class="blabel" id="ess-btn-label">Continuer →</span>
+    </button>
+  </div>
+
+</div></div>
+</div><!-- #form-cours -->
+
+
+<!-- ══════════════════════════════════════════════════════════
+     JAVASCRIPT COMMUN + ADHÉSION + COURS D'ESSAI
+══════════════════════════════════════════════════════════ -->
+<script>
+
+// ════════════════════════════════════════
+//  PORTAIL — Navigation entre écrans
+// ════════════════════════════════════════
+function showForm(type) {
+  document.getElementById('choice-screen').style.display = 'none';
+  document.getElementById('progress-area').style.display = '';
+
+  if (type === 'adhesion') {
+    document.getElementById('form-adhesion').style.display = 'block';
+    document.getElementById('header-sub').textContent = 'Dossier d\'adhésion — Saison 2026-2027';
+    // Réinitialise proprement le formulaire à l'étape 1
+    document.querySelectorAll('#form-adhesion .panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('adh-p1').classList.add('active');
+    adhCur = 1;
+    document.getElementById('adh-step-hd').style.display = '';
+    document.getElementById('adh-nav-bar').style.display = '';
+    document.getElementById('adh-success-screen').classList.remove('show');
+    const s = ADH_STEPS[0];
+    document.getElementById('adh-hd-title').textContent = s.title;
+    document.getElementById('adh-hd-sub').textContent = s.sub;
+    document.getElementById('adh-btn-prev').style.display = '';
+    document.getElementById('adh-btn-prev').textContent = '← Choix';
+    document.getElementById('adh-btn-prev').onclick = showChoiceScreen;
+    document.getElementById('adh-btn-label').textContent = 'Continuer →';
+    adhUpdateProgress();
+  } else {
+    document.getElementById('form-cours').style.display = 'block';
+    document.getElementById('header-sub').textContent = 'Cours d\'essai — Saison 2026-2027';
+    // Réinitialise proprement le formulaire à l'étape 1
+    document.querySelectorAll('#form-cours .panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('ess-p1').classList.add('active');
+    essCur = 1;
+    document.getElementById('ess-step-hd').style.display = '';
+    document.getElementById('ess-nav-bar').style.display = '';
+    document.getElementById('ess-success-screen').classList.remove('show');
+    const s = ESS_STEPS[0];
+    document.getElementById('ess-hd-title').textContent = s.title;
+    document.getElementById('ess-hd-sub').textContent = s.sub;
+    document.getElementById('ess-btn-prev').style.display = '';
+    document.getElementById('ess-btn-prev').textContent = '← Choix';
+    document.getElementById('ess-btn-prev').onclick = showChoiceScreen;
+    document.getElementById('ess-btn-label').textContent = 'Continuer →';
+    essUpdateProgress();
+  }
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function showChoiceScreen() {
+  document.getElementById('choice-screen').style.display = '';
+  document.getElementById('form-adhesion').style.display = 'none';
+  document.getElementById('form-cours').style.display = 'none';
+  document.getElementById('header-sub').textContent = 'Inscriptions — Saison 2026-2027';
+  document.getElementById('progress-area').style.display = 'none';
+  document.getElementById('prog-fill').style.width = '0%';
+  document.getElementById('prog-label').textContent = '';
+  document.getElementById('prog-pct').textContent = '';
+}
+
+function updateSharedProgress(cur, tot) {
+  const pct = Math.round(cur / tot * 100);
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-label').textContent = `Étape ${cur} sur ${tot}`;
+  document.getElementById('prog-pct').textContent = pct + '%';
+}
+
+
+// ════════════════════════════════════════
+//  FORMULAIRE ADHÉSION
+// ════════════════════════════════════════
+const ADH_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwoTpgYh2WQEPJ_m64y47Q9auuU8OIkbkvRKPYZnNvaF50Xzettoc2ADJ25vliWsHaetw/exec";
+
+const ADH_STEPS = [
+  {icon:"⚠️", title:"Important — À lire avant de commencer", sub:"Section 1 — Informations importantes"},
+  {icon:"👤", title:"Identité & Contact principal",          sub:"Section 2 — Informations personnelles"},
+  {icon:"🏥", title:"Informations médicales",                sub:"Section 3 — Santé"},
+  {icon:"📞", title:"Contacts urgence",                      sub:"Section 4 — Contacts 2 et 3"},
+  {icon:"✅", title:"Autorisations",                          sub:"Section 5 — Droits et autorisations"},
+  {icon:"💳", title:"Paiement",                              sub:"Section 6 — Modalités de règlement"},
+  {icon:"🧾", title:"Facture",                               sub:"Section 7 — Demande de facture"},
+  {icon:"📋", title:"Règlement intérieur",                   sub:"Section 8 — Acceptation"},
+  {icon:"🏁", title:"Validation finale",                     sub:"Section 9 — Confirmation"},
+];
+
+const ADH_CHX = {
+  cours:  ["JUDO - Mardi et Vendredi - 17h30 à 18h30","JUDO - Mardi et Vendredi - 18h30 à 20h00","JUDO - Mardi et Vendredi - 20h00 à 22h00","BABY JUDO - Mercredi - 17h30 à 18h30","JUJITSU - Mercredi - 19h30 à 21h00","Non Pratiquant"],
+  cert:   ["Attestation suite au questionnaire de santé","Sportif","Sportif de compétition","Non Pratiquant"],
+  attest: ["Oui","Non"],
+  aut3:   ["Oui","Non"],
+  autQ:   ["Oui","Non"],
+};
+
+let adhCur = 1;
+const ADH_TOT = 9;
+
+const adhGe  = id => document.getElementById(id);
+const adhVal = id => adhGe('adh-f-'+id)?.value?.trim() || '';
+const adhIsEmail = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+const adhIsDate  = v => /^\d{2}\/\d{2}\/\d{4}$/.test(v);
+
+function adhSe(id) { adhGe('adh-f-'+id)?.classList.add('err'); adhGe('adh-f-'+id+'-e')?.classList.add('show'); }
+function adhCe(id) { adhGe('adh-f-'+id)?.classList.remove('err'); adhGe('adh-f-'+id)?.classList.add('ok'); adhGe('adh-f-'+id+'-e')?.classList.remove('show'); }
+function adhChkReq(id)   { if(!adhVal(id)) { adhSe(id); return false; } adhCe(id); return true; }
+function adhChkMail(id)  { const v=adhVal(id); if(!v||!adhIsEmail(v)) { adhSe(id); return false; } adhCe(id); return true; }
+function adhChkR(n,eid)  { if(!adhRVal(n)) { adhGe(eid)?.classList.add('show'); return false; } adhGe(eid)?.classList.remove('show'); return true; }
+function adhChkCb(iid,eid){ if(!adhCbV(iid)) { adhGe(eid)?.classList.add('show'); return false; } adhGe(eid)?.classList.remove('show'); return true; }
+function adhRVal(n) { return document.querySelector(`input[name="adh-${n}"]:checked`)?.value || ''; }
+function adhCbV(id) { return !!adhGe(id)?.checked; }
+
+function adhBuildR(gId, opts, name) {
+  adhGe(gId).innerHTML = opts.map(o =>
+    `<label class="choice" data-n="adh-${name}" onclick="adhPickR(this)">
+       <input type="radio" name="adh-${name}" value="${o}"/>
+       <div class="cdot"></div>
+       <div class="ctext">${o}</div>
+     </label>`).join('');
+}
+function adhPickR(el) {
+  const n = el.dataset.n;
+  document.querySelectorAll(`.choice[data-n="${n}"]`).forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  el.querySelector('input').checked = true;
+  const eid = n.replace('adh-','adh-')+'-e';
+  adhGe(eid)?.classList.remove('show');
+}
+function adhInitCb(lblId, cbId) {
+  const cb = adhGe(cbId);
+  cb.addEventListener('change', () => adhGe(lblId).classList.toggle('selected', cb.checked));
+}
+
+function adhUpdateProgress() {
+  updateSharedProgress(adhCur, ADH_TOT);
+}
+
+function adhValidate(s) {
+  let ok = true;
+  const f = () => { ok = false; };
+
+  if (s === 2) {
+    if (!adhChkReq('nom'))     f();
+    if (!adhChkReq('prenom'))  f();
+    const dv = adhVal('ddn'); if (!dv || !adhIsDate(dv)) { adhSe('ddn'); f(); } else adhCe('ddn');
+    if (!adhChkReq('adresse')) f();
+    if (!adhChkReq('cp'))      f();
+    if (!adhChkReq('ville'))   f();
+    if (!adhChkReq('qualite1'))f();
+    if (!adhChkReq('tel1'))    f();
+    if (!adhChkMail('email'))  f();
+    if (!adhChkR('cours','adh-cours-e')) f();
+  }
+  if (s === 3) { if (!adhChkR('cert','adh-cert-e')) f(); }
+  if (s === 4) {
+    const m3 = adhVal('mail3');
+    if (m3 && !adhIsEmail(m3)) { adhSe('mail3'); f(); }
+    else { adhGe('adh-f-mail3')?.classList.remove('err'); adhGe('adh-f-mail3-e')?.classList.remove('show'); }
+  }
+  if (s === 5) {
+    if (!adhChkR('atr','adh-atr-e')) f();
+    if (!adhChkR('aph','adh-aph-e')) f();
+    if (!adhChkR('aur','adh-aur-e')) f();
+    if (adhGe('adh-field-quitter').style.display !== 'none') {
+      if (!adhChkR('aqu','adh-aqu-e')) f();
+    }
+  }
+  if (s === 6) { if (!adhChkCb('adh-f-modalites','adh-f-modalites-e')) f(); }
+  if (s === 7) { if (!adhChkR('attest','adh-attest-e')) f(); }
+  if (s === 8) { if (!adhChkCb('adh-f-reglement','adh-f-reglement-e')) f(); }
+  if (s === 9) { if (!adhChkCb('adh-f-validation','adh-f-validation-e')) f(); }
+
+  return ok;
+}
+
+function adhGoTo(n) {
+  adhGe('adh-p'+adhCur).classList.remove('active');
+  adhCur = n;
+  adhGe('adh-p'+adhCur).classList.add('active');
+  adhUpdateProgress();
+
+  const s = ADH_STEPS[adhCur-1];
+  adhGe('adh-hd-title').textContent = s.title;
+  adhGe('adh-hd-sub').textContent   = s.sub;
+
+  // Bouton Retour : étape 1 → retour à l'écran de choix
+  if (adhCur === 1) {
+    adhGe('adh-btn-prev').style.display = '';
+    adhGe('adh-btn-prev').textContent = '← Choix';
+    adhGe('adh-btn-prev').onclick = showChoiceScreen;
+  } else {
+    adhGe('adh-btn-prev').style.display = '';
+    adhGe('adh-btn-prev').textContent = '← Retour';
+    adhGe('adh-btn-prev').onclick = () => adhGo(-1);
+  }
+  // Masquer le Retour uniquement si on est à l'étape 1 ET pas revenu depuis le choix
+  // (le bouton Retour est toujours affiché depuis l'étape 1 pour revenir au choix)
+  adhGe('adh-btn-label').textContent = adhCur === ADH_TOT ? 'Envoyer le dossier ✓' : 'Continuer →';
+
+  // Gestion âge panel 5
+  if (n === 5) {
+    const ddn = adhVal('ddn');
+    let majeur = false;
+    if (ddn && adhIsDate(ddn)) {
+      const parts = ddn.split('/');
+      const naissance = new Date(parts[2], parts[1]-1, parts[0]);
+      const aujourd_hui = new Date();
+      let age = aujourd_hui.getFullYear() - naissance.getFullYear();
+      const moisDiff = aujourd_hui.getMonth() - naissance.getMonth();
+      if (moisDiff < 0 || (moisDiff === 0 && aujourd_hui.getDate() < naissance.getDate())) age--;
+      majeur = age >= 18;
+    }
+    const fieldQ = adhGe('adh-field-quitter');
+    if (majeur) {
+      fieldQ.style.display = 'none';
+      document.querySelectorAll('.choice[data-n="adh-aqu"]').forEach(c => {
+        c.classList.remove('selected');
+        if (c.querySelector('input').value === 'Pas Concerné') {
+          c.classList.add('selected');
+          c.querySelector('input').checked = true;
+        }
+      });
+    } else {
+      fieldQ.style.display = '';
+    }
+    const fieldC = adhGe('adh-field-confier');
+    if (majeur) {
+      fieldC.style.display = 'none';
+      adhGe('adh-f-confier').value = 'Pas Concerné';
+    } else {
+      fieldC.style.display = '';
+      adhGe('adh-f-confier').value = '';
+    }
+  }
+
+  adhGe('adh-err-global')?.classList.remove('show');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+async function adhGo(dir) {
+  if (dir === 1) {
+    if (!adhValidate(adhCur)) return;
+    if (adhCur === ADH_TOT) { await adhSubmit(); return; }
+    adhGoTo(adhCur + 1);
+  } else {
+    if (adhCur === 1) { showChoiceScreen(); return; }
+    adhGoTo(adhCur - 1);
+  }
+}
+
+async function adhSubmit() {
+  if (!navigator.onLine) { adhShowGErr('⚡ Connexion internet perdue. Vérifiez votre réseau.'); return; }
+  adhSetLoad(true);
+  const email = adhVal('email');
+  const data = {
+    email,
+    nom:                  adhVal('nom').toUpperCase(),
+    prenom:               adhVal('prenom'),
+    dateNaissance:        adhVal('ddn'),
+    adresse:              adhVal('adresse'),
+    codePostal:           adhVal('cp'),
+    ville:                adhVal('ville'),
+    coursLicencie:        adhRVal('cours'),
+    certificatMedical:    adhRVal('cert'),
+    allergies:            adhVal('allergie'),
+    traitementMedical:    adhVal('traitement'),
+    qualite1:             adhGe('adh-f-qualite1').value,
+    telephone1:           adhVal('tel1'),
+    adresseMail1:         email,
+    qualite2:             adhGe('adh-f-qualite2').value,
+    telephone2:           adhVal('tel2'),
+    adresseMail2:         adhVal('mail2'),
+    qualite3:             adhGe('adh-f-qualite3').value,
+    telephone3:           adhVal('tel3'),
+    adresseMail3:         adhVal('mail3'),
+    validationReglement:  adhCbV('adh-f-reglement') ? 'certifie avoir lu et accepte les conditions du règlement intérieur' : '',
+    validationModalites:  adhCbV('adh-f-modalites') ? "J'ai lu et j'accepte les conditions de règlement" : '',
+    demanderAttestation:  adhRVal('attest'),
+    autorisationTransport:adhRVal('atr'),
+    autorisationPhoto:    adhRVal('aph'),
+    autorisationUrgence:  adhRVal('aur'),
+    autorisationQuitter:  adhGe('adh-field-quitter').style.display === 'none' ? 'Pas concerné' : adhRVal('aqu'),
+    autorisationConfier:  adhGe('adh-field-confier').style.display === 'none' ? 'Pas concerné' : adhVal('confier'),
+    validationInfos:      adhCbV('adh-f-validation') ? 'Je certifie que toutes les informations sont exactes' : '',
+    timestamp:            new Date().toLocaleString('fr-FR'),
+  };
+  try {
+    await fetch(ADH_SCRIPT_URL, {method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+    adhShowSuccess();
+  } catch(e) {
+    console.error(e);
+    adhSetLoad(false);
+    adhShowGErr(navigator.onLine ? '❌ Une erreur est survenue. Veuillez réessayer.' : '⚡ Connexion perdue pendant l\'envoi.');
+  }
+}
+
+function adhSetLoad(on) { adhGe('adh-btn-next').disabled=on; adhGe('adh-btn-next').classList.toggle('loading',on); }
+function adhShowGErr(m) { const b=adhGe('adh-err-global'); b.textContent=m; b.classList.add('show'); }
+function adhShowSuccess() {
+  adhGe('adh-step-hd').style.display='none';
+  document.querySelectorAll('#form-adhesion .panel').forEach(p => p.style.display='none');
+  adhGe('adh-nav-bar').style.display='none';
+  adhGe('adh-success-screen').classList.add('show');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+
+// ════════════════════════════════════════
+//  FORMULAIRE COURS D'ESSAI
+// ════════════════════════════════════════
+const ESS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwoTpgYh2WQEPJ_m64y47Q9auuU8OIkbkvRKPYZnNvaF50Xzettoc2ADJ25vliWsHaetw/exec";
+
+const ESS_STEPS = [
+  { title:'👤 Identité & Contact',       sub:'Section 1 — Informations personnelles' },
+  { title:'📅 Date de l\'essai',          sub:'Section 2 — Créneau & calendrier' },
+  { title:'🩺 Informations médicales',    sub:'Section 3 — Santé (facultatif)' },
+  { title:'📋 Règlement & Validation',    sub:'Section 4 — Règlement cours d\'essai' },
+];
+
+const ESS_TOT = 4;
+let essCur = 1;
+
+const CRENEAU_LIST = [
+  { label:'BabyJudo - le Mercredi : 17h30–18h30',          note:'Né en 2022',          days:[3],   minY:2022, maxY:2022 },
+  { label:'Judo - les Mardi & Vendredi : 17h30–18h30',     note:'Né en 2021 et 2020',  days:[2,5], minY:2020, maxY:2021 },
+  { label:'Judo - les Mardi & Vendredi : 18h30–20h00',     note:'Né de 2019 à 2016',   days:[2,5], minY:2016, maxY:2019 },
+  { label:'Judo - les Mardi & Vendredi : 20h00–22h00',     note:'Né en 2015 et avant', days:[2,5], minY:0,    maxY:2015 },
+];
+const CRENEAU_JUJITSU = { label:'Jujitsu - Mercredi 19h30–21h00', days:[3] };
+
+const DOW_SHORT  = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+const MONTHS_FR  = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+const MONTHS_GEN = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+const DAYS_FR    = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+
+const CAL_MIN = new Date(2026, 7, 28);
+CAL_MIN.setHours(0,0,0,0);
+let essCalYear  = CAL_MIN.getFullYear();
+let essCalMonth = CAL_MIN.getMonth();
+let essSelectedDate = null;
+let essActiveDays   = [];
+
+const essGe  = id => document.getElementById(id);
+const essVal = id => essGe('ess-f-'+id)?.value.trim() ?? '';
+const essCbV = id => essGe(id)?.checked ?? false;
+const essIsEmail = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+const essIsDate  = v => /^\d{2}\/\d{2}\/\d{4}$/.test(v);
+
+function essSetErr(fid, msg, show) {
+  const f = essGe('ess-f-'+fid);
+  const e = essGe('ess-f-'+fid+'-e') || essGe('ess-'+fid+'-e');
+  if (f) f.classList.toggle('err', show);
+  if (e) { if (msg) e.textContent = msg; e.classList.toggle('show', show); }
+}
+
+function essInitCb(cbId, inputId) {
+  const el = essGe(cbId);
+  if (!el) return;
+  el.addEventListener('click', (e) => {
+    e.preventDefault();
+    el.classList.toggle('selected');
+    essGe(inputId).checked = el.classList.contains('selected');
+  });
+}
+
+function essUpdateProgress() {
+  updateSharedProgress(essCur, ESS_TOT);
+}
+
+function essGetCreneauIdx(ddn) {
+  if (!ddn || !essIsDate(ddn)) return -1;
+  const y = parseInt(ddn.split('/')[2]);
+  return CRENEAU_LIST.findIndex(c => y >= c.minY && y <= c.maxY);
+}
+
+function essShowCreneauAuto() {
+  const g       = essGe('ess-creneau-g');
+  const errBox  = essGe('ess-creneau-err-box');
+  const jjField = essGe('ess-jujitsu-field');
+  const calWrap = essGe('ess-cal-wrap');
+  const ddn     = essVal('ddn');
+  const idx     = essGetCreneauIdx(ddn);
+  const isJJ    = essCbV('ess-f-jujitsu');
+
+  g.innerHTML = CRENEAU_LIST.map((c, i) => {
+    const isSel = (i === idx && !isJJ);
+    return `<div class="choice locked${isSel ? ' selected' : ''}">
+      <div class="cdot"></div>
+      <div class="ctext">${c.label}
+        <span style="font-size:.74rem;color:var(--muted)"> — ${c.note}</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  if (idx >= 0) {
+    errBox.style.display = 'none';
+    const effective = isJJ ? CRENEAU_JUJITSU : CRENEAU_LIST[idx];
+    essGe('ess-f-creneau').value = effective.label;
+    essActiveDays = effective.days;
+
+    const birthYear = parseInt(ddn.split('/')[2]);
+    jjField.style.display = birthYear <= 2018 ? '' : 'none';
+    if (birthYear > 2018) {
+      essGe('ess-cb-jujitsu').classList.remove('selected');
+      essGe('ess-f-jujitsu').checked = false;
+    }
+
+    essSelectedDate = null;
+    essGe('ess-f-date-essai').value = '';
+    essGe('ess-date-chosen-label').textContent = '';
+    essCalYear  = CAL_MIN.getFullYear();
+    essCalMonth = CAL_MIN.getMonth();
+    calWrap.style.display = '';
+    essRenderCal();
+  } else {
+    errBox.style.display = '';
+    essGe('ess-f-creneau').value = '';
+    jjField.style.display = 'none';
+    calWrap.style.display = 'none';
+    essActiveDays = [];
+  }
+}
+
+function essRenderCal() {
+  essGe('ess-cal-month-label').textContent = MONTHS_FR[essCalMonth] + ' ' + essCalYear;
+  const isMinMonth = (essCalYear === CAL_MIN.getFullYear() && essCalMonth === CAL_MIN.getMonth());
+  essGe('ess-cal-prev').disabled = isMinMonth;
+
+  essGe('ess-cal-dow-row').innerHTML = DOW_SHORT.map((d, i) =>
+    `<div class="cal-dow${essActiveDays.includes(i) ? ' hl' : ''}">${d}</div>`
+  ).join('');
+
+  const firstDow    = new Date(essCalYear, essCalMonth, 1).getDay();
+  const daysInMonth = new Date(essCalYear, essCalMonth + 1, 0).getDate();
+  let html = '';
+  for (let i = 0; i < firstDow; i++) html += '<div class="cal-day"></div>';
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dt = new Date(essCalYear, essCalMonth, d);
+    dt.setHours(0,0,0,0);
+    const dow     = dt.getDay();
+    const allowed = essActiveDays.includes(dow);
+    const isPast  = dt < CAL_MIN;
+    const isFirst = dt.getTime() === CAL_MIN.getTime();
+    const dStr    = `${String(d).padStart(2,'0')}/${String(essCalMonth+1).padStart(2,'0')}/${essCalYear}`;
+    const isSel   = essSelectedDate === dStr;
+
+    let cls = 'cal-day';
+    if (!isPast && allowed) cls += ' active';
+    else if (isPast)        cls += ' past';
+    if (isFirst) cls += ' today';
+    if (isSel)   cls += ' selected';
+
+    const onclick = (!isPast && allowed) ? `onclick="essPickDate('${dStr}')"` : '';
+    html += `<div class="${cls}" ${onclick}>${d}</div>`;
+  }
+  essGe('ess-cal-days').innerHTML = html;
+}
+
+function essPickDate(dStr) {
+  essSelectedDate = dStr;
+  essGe('ess-f-date-essai').value = dStr;
+  essGe('ess-f-date-essai-e').classList.remove('show');
+  const [dd,mm,yyyy] = dStr.split('/');
+  const dt = new Date(parseInt(yyyy), parseInt(mm)-1, parseInt(dd));
+  essGe('ess-date-chosen-label').textContent = '✅ Date choisie : ' + DAYS_FR[dt.getDay()] + ' ' + dd + ' ' + MONTHS_GEN[parseInt(mm)-1] + ' ' + yyyy;
+  essRenderCal();
+}
+
+function essCalNav(dir) {
+  essCalMonth += dir;
+  if (essCalMonth > 11) { essCalMonth = 0; essCalYear++; }
+  if (essCalMonth < 0)  { essCalMonth = 11; essCalYear--; }
+  essRenderCal();
+}
+
+function essValidate(step) {
+  let ok = true;
+  essGe('ess-err-global')?.classList.remove('show');
+
+  if (step === 1) {
+    if (!essVal('nom'))    { essSetErr('nom','Ce champ est obligatoire',true); ok=false; }    else essSetErr('nom','',false);
+    if (!essVal('prenom')) { essSetErr('prenom','Ce champ est obligatoire',true); ok=false; } else essSetErr('prenom','',false);
+    const ddn = essVal('ddn');
+    if (!ddn || !essIsDate(ddn)) { essSetErr('ddn','Veuillez entrer une date valide au format JJ/MM/AAAA',true); ok=false; } else essSetErr('ddn','',false);
+    if (!essGe('ess-f-qualite').value) { essSetErr('qualite','Veuillez sélectionner une qualité',true); ok=false; } else essSetErr('qualite','',false);
+    const email = essVal('email');
+    if (!email || !essIsEmail(email)) { essSetErr('email','Veuillez entrer une adresse e-mail valide',true); ok=false; } else essSetErr('email','',false);
+    if (!essVal('tel')) { essSetErr('tel','Ce champ est obligatoire',true); ok=false; } else essSetErr('tel','',false);
+  }
+
+  if (step === 2) {
+    if (!essGe('ess-f-creneau').value) {
+      essGe('ess-f-date-essai-e').classList.remove('show');
+      essGe('ess-err-global').textContent = '⚠️ Aucun créneau disponible pour cet âge. Merci de contacter le club.';
+      essGe('ess-err-global').classList.add('show');
+      return false;
+    }
+    if (!essGe('ess-f-date-essai').value) {
+      essGe('ess-f-date-essai-e').classList.add('show'); ok=false;
+    } else { essGe('ess-f-date-essai-e').classList.remove('show'); }
+  }
+
+  if (step === 4) {
+    if (!essCbV('ess-f-certifie'))  { essGe('ess-f-certifie-e').classList.add('show'); ok=false; }  else essGe('ess-f-certifie-e').classList.remove('show');
+    if (!essCbV('ess-f-reglement')) { essGe('ess-f-reglement-e').classList.add('show'); ok=false; } else essGe('ess-f-reglement-e').classList.remove('show');
+  }
+
+  if (!ok) essGe('ess-err-global').classList.add('show');
+  return ok;
+}
+
+function essGoTo(n) {
+  essGe('ess-p'+essCur).classList.remove('active');
+  essCur = n;
+  essGe('ess-p'+essCur).classList.add('active');
+  essUpdateProgress();
+
+  const s = ESS_STEPS[essCur-1];
+  essGe('ess-hd-title').textContent = s.title;
+  essGe('ess-hd-sub').textContent   = s.sub;
+
+  // Bouton Retour : étape 1 → retour à l'écran de choix
+  if (essCur === 1) {
+    essGe('ess-btn-prev').style.display = '';
+    essGe('ess-btn-prev').textContent = '← Choix';
+    essGe('ess-btn-prev').onclick = showChoiceScreen;
+  } else {
+    essGe('ess-btn-prev').style.display = '';
+    essGe('ess-btn-prev').textContent = '← Retour';
+    essGe('ess-btn-prev').onclick = () => essGo(-1);
+  }
+  essGe('ess-btn-label').textContent = essCur === ESS_TOT ? 'Envoyer ✓' : 'Continuer →';
+
+  if (n === 2) essShowCreneauAuto();
+
+  essGe('ess-err-global')?.classList.remove('show');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+async function essGo(dir) {
+  if (dir === 1) {
+    if (!essValidate(essCur)) return;
+    if (essCur === ESS_TOT) { await essSubmit(); return; }
+    essGoTo(essCur + 1);
+  } else {
+    if (essCur === 1) { showChoiceScreen(); return; }
+    essGoTo(essCur - 1);
+  }
+}
+
+async function essSubmit() {
+  if (!navigator.onLine) { essShowGErr('⚡ Connexion internet perdue. Vérifiez votre réseau.'); return; }
+  essSetLoad(true);
+  const data = {
+    email              : essVal('email'),
+    nom                : essVal('nom').toUpperCase(),
+    prenom             : essVal('prenom'),
+    dateNaissance      : essVal('ddn'),
+    qualite            : essGe('ess-f-qualite').value,
+    telephone          : essVal('tel'),
+    creneauEssai       : essGe('ess-f-creneau').value,
+    dateEssai          : essGe('ess-f-date-essai').value,
+    infosMedicales     : essGe('ess-f-medical').value.trim() || 'RAS',
+    validationInfos    : essCbV('ess-f-certifie')   ? 'Je certifie que les informations sont exactes' : '',
+    validationReglement: essCbV('ess-f-reglement')  ? "J'ai lu et j'accepte le règlement du cours d'essai et ses conditions" : '',
+    timestamp          : new Date().toLocaleString('fr-FR'),
+  };
+  try {
+    await fetch(ESS_SCRIPT_URL, {method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+    essShowSuccess();
+  } catch(e) {
+    console.error(e);
+    essSetLoad(false);
+    essShowGErr(navigator.onLine ? '❌ Une erreur est survenue. Veuillez réessayer.' : '⚡ Connexion perdue pendant l\'envoi.');
+  }
+}
+
+function essSetLoad(on) { essGe('ess-btn-next').disabled=on; essGe('ess-btn-next').classList.toggle('loading',on); }
+function essShowGErr(m) { const b=essGe('ess-err-global'); b.textContent=m; b.classList.add('show'); }
+function essShowSuccess() {
+  essGe('ess-step-hd').style.display='none';
+  document.querySelectorAll('#form-cours .panel').forEach(p => p.style.display='none');
+  essGe('ess-nav-bar').style.display='none';
+  essGe('ess-success-screen').classList.add('show');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+
+// ════════════════════════════════════════
+//  INIT COMMUN
+// ════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+
+ // ── Restriction temporelle Cours d'essai ──
+ // Janvier=0, Février=1, Mars=2, Avril=3, Mai=4, Juin=5, Juillet=6, Août=7, Septembre=8, Octobre=9, Novembre=10, Décembre=11
+  const aujourd_hui = new Date();
+  const dateDebut   = new Date(2026, 2, 31); // 31 mars 2026
+  const dateFin     = new Date(2026, 11, 15); // 15 décembre 2026
+  const essaiActif  = aujourd_hui >= dateDebut && aujourd_hui <= dateFin;
+ if (!essaiActif) {
+    showForm('adhesion');
+  }
+	
+	// ── Init ADHÉSION ──
+  adhBuildR('adh-cours-g',  ADH_CHX.cours,  'cours');
+  adhBuildR('adh-cert-g',   ADH_CHX.cert,   'cert');
+  adhBuildR('adh-attest-g', ADH_CHX.attest, 'attest');
+  adhBuildR('adh-atr-g',    ADH_CHX.aut3,   'atr');
+  adhBuildR('adh-aph-g',    ADH_CHX.aut3,   'aph');
+  adhBuildR('adh-aur-g',    ADH_CHX.aut3,   'aur');
+  adhBuildR('adh-aqu-g',    ADH_CHX.autQ,   'aqu');
+  adhInitCb('adh-cb-modalites',  'adh-f-modalites');
+  adhInitCb('adh-cb-reglement',  'adh-f-reglement');
+  adhInitCb('adh-cb-validation', 'adh-f-validation');
+
+  adhGe('adh-f-email').addEventListener('input', function() { adhGe('adh-f-mail1d').value = this.value; });
+
+  adhGe('adh-f-ddn').addEventListener('input', function() {
+    let v = this.value.replace(/\D/g,'').slice(0,8);
+    if (v.length>2) v = v.slice(0,2)+'/'+v.slice(2);
+    if (v.length>5) v = v.slice(0,5)+'/'+v.slice(5);
+    this.value = v;
+  });
+
+  ['adh-f-email','adh-f-mail2'].forEach(id => {
+    adhGe(id).addEventListener('blur', function() {
+      if (this.value && !adhIsEmail(this.value)) this.classList.add('err');
+      else if (this.value) this.classList.remove('err');
+    });
+  });
+
+  // Initialise le bouton Retour de l'étape 1 adhésion
+  adhGe('adh-btn-prev').style.display = '';
+  adhGe('adh-btn-prev').textContent = '← Choix';
+  adhGe('adh-btn-prev').onclick = showChoiceScreen;
+
+  // ── Init COURS D'ESSAI ──
+  essInitCb('ess-cb-certifie',  'ess-f-certifie');
+  essInitCb('ess-cb-reglement', 'ess-f-reglement');
+
+  essGe('ess-cb-jujitsu').addEventListener('click', (e) => {
+    e.preventDefault();
+    essGe('ess-cb-jujitsu').classList.toggle('selected');
+    essGe('ess-f-jujitsu').checked = essGe('ess-cb-jujitsu').classList.contains('selected');
+    essShowCreneauAuto();
+  });
+
+  essGe('ess-f-ddn').addEventListener('input', function() {
+    let v = this.value.replace(/\D/g,'').slice(0,8);
+    if (v.length>2) v = v.slice(0,2)+'/'+v.slice(2);
+    if (v.length>5) v = v.slice(0,5)+'/'+v.slice(5);
+    this.value = v;
+  });
+
+  essGe('ess-f-email').addEventListener('blur', function() {
+    if (this.value && !essIsEmail(this.value)) this.classList.add('err');
+    else if (this.value) this.classList.remove('err');
+  });
+
+  // Initialise le bouton Retour de l'étape 1 essai
+  essGe('ess-btn-prev').style.display = '';
+  essGe('ess-btn-prev').textContent = '← Choix';
+  essGe('ess-btn-prev').onclick = showChoiceScreen;
+
+  // ── Offline ──
+  window.addEventListener('offline', () => document.getElementById('offline-bar').classList.add('show'));
+  window.addEventListener('online',  () => document.getElementById('offline-bar').classList.remove('show'));
+});
+
+</script>
+</body>
+</html>
