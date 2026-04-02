@@ -867,13 +867,14 @@ function adhCbV(id) { return !!adhGe(id)?.checked; }
 
 function adhBuildR(gId, opts, name) {
   adhGe(gId).innerHTML = opts.map(o =>
-    `<label class="choice" data-n="adh-${name}" onclick="adhPickR(this)">
+    `<label class="choice" data-n="adh-${name}" onclick="adhPickR(event, this)>
        <input type="radio" name="adh-${name}" value="${o}"/>
        <div class="cdot"></div>
        <div class="ctext">${o}</div>
      </label>`).join('');
 }
-function adhPickR(el) {
+function adhPickR(event, el) {
+  event.preventDefault();
   const n = el.dataset.n;
   document.querySelectorAll(`.choice[data-n="${n}"]`).forEach(c => c.classList.remove('selected'));
   el.classList.add('selected');
