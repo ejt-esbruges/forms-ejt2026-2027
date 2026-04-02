@@ -1008,6 +1008,7 @@ async function adhSubmit() {
   adhSetLoad(true);
   const email = adhVal('email');
   const data = {
+	formType : 'adhesion',
     email,
     nom:                  adhVal('nom').toUpperCase(),
     prenom:               adhVal('prenom'),
@@ -1053,7 +1054,7 @@ function adhSetLoad(on) { adhGe('adh-btn-next').disabled=on; adhGe('adh-btn-next
 function adhShowGErr(m) { const b=adhGe('adh-err-global'); b.textContent=m; b.classList.add('show'); }
 function adhShowSuccess() {
   adhGe('adh-step-hd').style.display='none';
-  document.querySelectorAll('#form-adhesion .panel').forEach(p => p.style.display='none');
+  document.querySelectorAll('#form-adhesion .panel').forEach(p => { p.classList.remove('active'); p.style.display='none'; });
   adhGe('adh-nav-bar').style.display='none';
   adhGe('adh-success-screen').classList.add('show');
   window.scrollTo({top:0,behavior:'smooth'});
@@ -1308,6 +1309,7 @@ async function essSubmit() {
   if (!navigator.onLine) { essShowGErr('⚡ Connexion internet perdue. Vérifiez votre réseau.'); return; }
   essSetLoad(true);
   const data = {
+	formType : 'essai',
     email              : essVal('email'),
     nom                : essVal('nom').toUpperCase(),
     prenom             : essVal('prenom'),
