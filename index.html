@@ -1337,7 +1337,7 @@ function essSetLoad(on) { essGe('ess-btn-next').disabled=on; essGe('ess-btn-next
 function essShowGErr(m) { const b=essGe('ess-err-global'); b.textContent=m; b.classList.add('show'); }
 function essShowSuccess() {
   essGe('ess-step-hd').style.display='none';
-  document.querySelectorAll('#form-adhesion .panel').forEach(p => { p.classList.remove('active'); p.style.display='none'; });
+  document.querySelectorAll('#form-cours .panel').forEach(p => { p.classList.remove('active'); p.style.display='none'; });
   essGe('ess-nav-bar').style.display='none';
   essGe('ess-success-screen').classList.add('show');
   window.scrollTo({top:0,behavior:'smooth'});
